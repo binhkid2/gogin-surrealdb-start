@@ -6,32 +6,26 @@ import (
 
 	model "github.com/binhkid2/gogin-surrealdb-start/Model"
 	"github.com/gin-gonic/gin"
-	"github.com/surrealdb/surrealdb.go"
 )
 
 // getAlbums responds with the list of all albums as JSON.
 func GetBioLinks(c *gin.Context) {
 	var err error
-	// access database use namespace and database
-	if _, err = db.Use("test", "test"); err != nil {
-		panic(err)
-	}
+
 	//Select all query
 	biolinks, err := db.Select("biolinks")
 	if err != nil {
-		panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to retrieve biolinks",
+		})
+		return
 	}
 	c.IndentedJSON(http.StatusOK, biolinks)
-
 }
 
 var (
 	biolinks = map[string]model.BioLink{}
 )
-
-type TaskHandler struct {
-	DB *surrealdb.DB
-}
 
 func CreateBioLink(c *gin.Context) {
 	var err error
@@ -60,10 +54,6 @@ func CreateBioLink(c *gin.Context) {
 }
 func DeleteBioLink(c *gin.Context) {
 	var err error
-	// access database use namespace and database
-	if _, err = db.Use("test", "test"); err != nil {
-		panic(err)
-	}
 
 	id := c.Param("id")
 
@@ -78,10 +68,7 @@ func DeleteBioLink(c *gin.Context) {
 }
 func UpdateBioLink(c *gin.Context) {
 	var err error
-	// access database use namespace and database
-	if _, err = db.Use("test", "test"); err != nil {
-		panic(err)
-	}
+
 	//Update query
 	id := c.Param("id")
 	biolink := new(model.BioLink)

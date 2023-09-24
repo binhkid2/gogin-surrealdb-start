@@ -35,7 +35,10 @@ func Connect() {
 	}); err != nil {
 		panic(err)
 	}
-
+	// access database use namespace and database
+	if _, err = db.Use("test", "test"); err != nil {
+		panic(err)
+	}
 }
 
 func Close() {

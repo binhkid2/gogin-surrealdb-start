@@ -7,10 +7,14 @@ import (
 
 func main() {
 	router := gin.Default()
+	database.Connect()
+
 	router.GET("/biolinks", database.GetBioLinks)
 	router.POST("/biolinks", database.CreateBioLink)
 	router.DELETE("/biolink/:id", database.DeleteBioLink)
 	router.PUT("/biolink/:id", database.UpdateBioLink)
-	database.Connect()
+	// Close the database connection when the application exits
+	defer database.Close()
 	router.Run("localhost:8080")
+
 }
