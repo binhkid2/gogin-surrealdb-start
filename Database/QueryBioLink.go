@@ -9,7 +9,7 @@ import (
 )
 
 // getAlbums responds with the list of all albums as JSON.
-func GetBioLinks(c *gin.Context) {
+func GetAllBioLinks(c *gin.Context) {
 	var err error
 
 	//Select all query
@@ -27,20 +27,28 @@ var (
 	biolinks = map[string]model.BioLink{}
 )
 
+func GetBioLink(c *gin.Context) {
+	var err error
+	id := c.Param("id")
+	//Select all query
+	biolink, err := db.Select(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "No biolink have that id",
+		})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, biolink)
+}
 func CreateBioLink(c *gin.Context) {
 	var err error
-	// access database use namespace and database
-	if _, err = db.Use("test", "test"); err != nil {
-		panic(err)
-	}
-	biolink := new(model.BioLink)
-	if err := c.ShouldBindJSON(biolink); err != nil {
+	biolink := model.BioLink{}
+	if err := c.ShouldBindJSON(&biolink); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": fmt.Sprintf("Error while binding json: %s", err.Error()),
 		})
 		return
 	}
-
 	db.Create("biolinks", biolink)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -68,20 +76,21 @@ func DeleteBioLink(c *gin.Context) {
 }
 func UpdateBioLink(c *gin.Context) {
 	var err error
-
 	//Update query
 	id := c.Param("id")
-	biolink := new(model.BioLink)
-	if err := c.ShouldBindJSON(biolink); err != nil {
+	biolink := model.BioLink{}
+	if err := c.ShouldBindJSON(&biolink); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": fmt.Sprintf("Error while binding json: %s", err.Error()),
 		})
 		return
 	}
 	if _, err = db.Update(id, map[string]interface{}{
-		"title":    biolink.Title,
-		"link":     biolink.Link,
-		"isPublic": biolink.IsPublic,
+		"title":      biolink.Title,
+		"link":       biolink.Link,
+		"isPublic":   biolink.IsPublic,
+		"created_at": biolink.CreatedAt,
+		"updated_at": biolink.UpdatedAt,
 	}); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": fmt.Sprintf("Error while update task: %s", err.Error()),
